@@ -1,0 +1,15 @@
+C:\Users\Влад и Аня\source\repos\Mall\Mall\bin\Debug\net6.0\Mall.exe
+C:\Users\Влад и Аня\source\repos\Mall\Mall\bin\Debug\net6.0\Mall.deps.json
+C:\Users\Влад и Аня\source\repos\Mall\Mall\bin\Debug\net6.0\Mall.runtimeconfig.json
+C:\Users\Влад и Аня\source\repos\Mall\Mall\bin\Debug\net6.0\Mall.dll
+C:\Users\Влад и Аня\source\repos\Mall\Mall\bin\Debug\net6.0\Mall.pdb
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.csproj.AssemblyReference.cache
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.AssemblyInfoInputs.cache
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.AssemblyInfo.cs
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.csproj.CoreCompileInputs.cache
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.dll
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\refint\Mall.dll
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.pdb
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\Mall.genruntimeconfig.cache
+C:\Users\Влад и Аня\source\repos\Mall\Mall\obj\Debug\net6.0\ref\Mall.dll
