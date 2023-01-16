@@ -1,31 +1,62 @@
-﻿using System.Xml.Linq;
-
-namespace Mall
+﻿namespace Mall
 {
     internal class Program
     {
         static void Main(string[] args)
+        {
+            Mall mall = new("Геймер", "Магазин видеоигр, приставок и аксессуаров", "г. Владимир, ул. Юбилейная, д. 52");
+            mall.StartDay();
+        }
+    }
+
+    class Mall
+    {
+        private List<Stack> _stack = new();
+        private Queue<Client> _clients = new(8);
+
+        public Mall(string name, string description, string adress)
+        {
+            Name = name;
+            Description = description;
+            Adress = adress;
+
+            _stack = new List<Stack>
+            {
+                new Stack(new Product("Mount and Blade", 500)),
+                new Stack(new Product("Dishonored", 400)),
+                new Stack(new Product("Total War: Warhammer", 1000)),
+                new Stack(new Product("Ori", 500)),
+                new Stack(new Product("The Callisto Protocol", 4000)),
+                new Stack(new Product("Assassin`s Creed: Valhalla", 3000)),
+                new Stack(new Product("God of War: Ragnarok", 4500)),
+                new Stack(new Product("The Last of Us: Part 2", 2300)),
+            };
+
+            _clients.Enqueue(new Client("Иван", 500));
+            _clients.Enqueue(new Client("Александр", 1000));
+            _clients.Enqueue(new Client("Влад", 1500));
+            _clients.Enqueue(new Client("Михаил", 2000));
+            _clients.Enqueue(new Client("Анатолий", 2500));
+            _clients.Enqueue(new Client("Дмитрий", 3000));
+            _clients.Enqueue(new Client("Олег", 3500));
+            _clients.Enqueue(new Client("Роман", 4000));
+        }
+
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+        public string Adress { get; private set; }
+
+        public void StartDay()
         {
             const string CommandServeCustomer = "1";
             const string CommandExit = "2";
 
             bool isProgramOn = true;
 
-            Mall mall = new("Геймер", "Магазин видеоигр, приставок и аксессуаров", "г. Владимир, ул. Юбилейная, д. 52");
-            Queue<Client> clients = new(8);
-            Random random = new Random();
-            List<string> names = new List<string> { "Иван", "Александр", "Влад", "Алексей", "Михаил", "Анатолий", "Дмитрий", "Олег" };
-            List<int> money = new List<int> { 500, 4000 };
-
-            foreach (string name in names)
+            while (_clients.Count > 0 || isProgramOn)
             {
-                clients.Enqueue(new Client(name, random.Next(money[0], money[1])));
-            }
-
-            while (clients.Count > 0 || isProgramOn)
-            {
-                Console.WriteLine($"Добрый день.\nВ магазине очередь из {names.Count} человек");
-                Console.WriteLine($"{CommandServeCustomer}-Обслужить покупателей");
+                Console.WriteLine($"Добрый день.\nВ магазине очередь из {_clients.Count} человек");
+                Console.WriteLine($"{CommandServeCustomer}-Обслужить покупателя");
                 Console.WriteLine($"{CommandExit}-Выйти");
 
                 string? userInput = Console.ReadLine();
@@ -33,11 +64,13 @@ namespace Mall
                 switch (userInput)
                 {
                     case CommandServeCustomer:
-                        mall.Sell(clients);
+                        ServeClient();
                         break;
+
                     case CommandExit:
                         isProgramOn = false;
                         break;
+
                     default:
                         Console.WriteLine("Введите цифру меню");
                         break;
@@ -45,65 +78,81 @@ namespace Mall
             }
         }
 
-    }
-
-    class Mall
-    {
-        private List<Stack> _stack = new();
-
-        public Mall(string name, string description, string adress)
+        public void ServeClient()
         {
-            Name = name;
-            Description = description;
-            Adress = adress;
-            _stack = new List<Stack>
+            var client = _clients.Peek();
+            bool isClientOn = true;
+
+            while (isClientOn)
             {
-                new Stack(new Product("Mount and Blade", 500), 5),
-                new Stack(new Product("Dishonored", 400), 12),
-                new Stack(new Product("Total War: Warhammer", 1000), 6),
-                new Stack(new Product("Ori", 500), 15),
-                new Stack(new Product("The Callisto Protocol", 4000), 6),
-                new Stack(new Product("Assassin`s Creed: Valhalla", 3000), 8),
-                new Stack(new Product("God of War: Ragnarok", 4500), 7),
-                new Stack(new Product("The Last of Us: Part 2", 2300), 10),
-            };
-        }
+                const string CommandBuyProduct = "1";
+                const string CommandEndPurchase = "2";
 
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-        public string Adress { get; private set; }
-
-        public void Sell(Queue<Client> clients) 
-        {
-            var client = clients.Peek();
-
-            while(client.Money > 0)
-            {
                 Console.Clear();
                 Console.WriteLine($"Покупатель: {client.Name}, Баланс: {client.Money}");
+                client.ShowCart();
                 Console.WriteLine("Ассортимент товаров: ");
                 ShowProducts();
+                Console.WriteLine($"Выберите команду:\n{CommandBuyProduct}-Купить товары\n{CommandEndPurchase}-Закончить");
 
-                if (TryTakeProduct(out Stack stack))
+                string? userInput = Console.ReadLine();
+
+                switch (userInput)
                 {
-                    client.Buy(stack);
-                    Console.WriteLine("Покупка успешна");
-                    Console.ReadKey();
-                }
-                else
-                {
-                    Console.WriteLine("Ошибка");
+                    case CommandBuyProduct:
+                        Sell();
+                        break;
+
+                    case CommandEndPurchase:
+                        EndPurchase(out isClientOn);
+                        break;
                 }
             }
-            
+        }
+
+        public void Sell()
+        {
+            var client = _clients.Peek();
+
+            if (TryTakeProduct(out Stack stack))
+            {
+                client.Buy(stack);
+                Console.WriteLine("В корзине");
+                Console.ReadKey();
+            }
+            else
+            {
+                Console.WriteLine("Ошибка");
+            }
+        }
+
+        private void EndPurchase(out bool isClientOn)
+        {
+            var client = _clients.Peek();
+
+            if (client.Money < 0)
+            {
+                Console.WriteLine("У вас недостаточно денег, нажмите любую клавишу, чтобы выкинуть товар из корзины");
+                Console.ReadKey();
+                client.RemoveProductFromCart();
+                isClientOn = false;
+            }
+            else
+            {
+                _clients.Dequeue();
+                Console.Clear();
+                Console.WriteLine("До свидания!");
+                Console.ReadKey();
+                isClientOn = false;
+            }
         }
 
         private void ShowProducts()
         {
-            for(int i = 0; i < _stack.Count; i++)
+            for (int i = 0; i < _stack.Count; i++)
             {
                 var stack = _stack[i];
-                Console.Write((i+1) + " ");
+                Console.Write((i + 1) + " ");
                 stack.ShowInfo();
                 Console.WriteLine();
             }
@@ -118,12 +167,14 @@ namespace Mall
             if (int.TryParse(Console.ReadLine(), out int numberProduct) == false)
             {
                 Console.WriteLine("Ошибка");
+                Console.ReadKey();
                 return false;
             }
 
             if (numberProduct < 0 || numberProduct >= _stack.Count)
             {
                 Console.WriteLine("Такого товара нет");
+                Console.ReadKey();
                 return false;
             }
 
@@ -132,12 +183,14 @@ namespace Mall
             if (int.TryParse(Console.ReadLine(), out int quantity) == false)
             {
                 Console.WriteLine("Нужно ввести число.");
+                Console.ReadKey();
                 return false;
             }
 
             if (_stack[numberProduct].TryGetProduct(out stack, quantity) == false)
             {
                 Console.WriteLine("Недостаточно количество");
+                Console.ReadKey();
                 return false;
             }
 
@@ -155,8 +208,6 @@ namespace Mall
 
         public string Name { get; private set; }
         public int Cost { get; private set; }
-
-        
     }
 
     class Client
@@ -187,12 +238,19 @@ namespace Mall
                 if (currentStack.Product == stack.Product)
                 {
                     currentStack.AddQuantity(stack.Quantity);
-                    Money -= stack.Product.Cost;
                     return;
                 }
             }
 
+            Money -=  stack.Quantity * stack.Product.Cost;
             _cart.Add(stack);
+        }
+
+        public void RemoveProductFromCart()
+        {
+            var lastItem = _cart[^1];
+            _cart.Remove(lastItem);
+            Money += lastItem.Product.Cost;
         }
     }
 
@@ -230,7 +288,7 @@ namespace Mall
 
         public void ShowInfo()
         {
-            Console.WriteLine($"{Product.Name}, цена: {Product.Cost}, количество: {Quantity}");
+            Console.WriteLine($"{Product.Name}, цена: {Product.Cost}");
         }
 
         public void AddQuantity(int quantity)
