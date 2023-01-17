@@ -5,6 +5,7 @@
         static void Main(string[] args)
         {
             Mall mall = new("Геймер", "Магазин видеоигр, приставок и аксессуаров", "г. Владимир, ул. Юбилейная, д. 52");
+            Console.WriteLine($"Приветствуем Вас в магазине {mall.Name}!");
             mall.StartDay();
         }
     }
@@ -78,7 +79,7 @@
             }
         }
 
-        public void ServeClient()
+        private void ServeClient()
         {
             var client = _clients.Peek();
             bool isClientOn = true;
@@ -110,11 +111,11 @@
             }
         }
 
-        public void Sell()
+        private void Sell()
         {
             var client = _clients.Peek();
 
-            if (TryTakeProduct(out Stack stack))
+            if (TryTakeProduct(out Stack? stack))
             {
                 client.Buy(stack);
                 Console.WriteLine("В корзине");
@@ -152,13 +153,13 @@
             for (int i = 0; i < _stack.Count; i++)
             {
                 var stack = _stack[i];
-                Console.Write((i + 1) + " ");
+                Console.Write((i) + " ");
                 stack.ShowInfo();
                 Console.WriteLine();
             }
         }
 
-        private bool TryTakeProduct(out Stack stack)
+        private bool TryTakeProduct(out Stack? stack)
         {
             stack = null;
 
@@ -227,7 +228,7 @@
         {
             foreach (Stack stack in _cart)
             {
-                stack.ShowInfo();
+                Console.WriteLine($"{stack.Product.Name}, количество: {stack.Quantity}");
             }
         }
 
@@ -242,7 +243,7 @@
                 }
             }
 
-            Money -=  stack.Quantity * stack.Product.Cost;
+            Money -= stack.Quantity * stack.Product.Cost;
             _cart.Add(stack);
         }
 
@@ -264,10 +265,15 @@
             Quantity = quantity;
         }
 
+        public Stack(Product product)
+        {
+            Product = product;
+        }
+
         public Product Product { get; }
         public int Quantity { get; private set; }
 
-        public bool TryGetProduct(out Stack stack, int quantity)
+        public bool TryGetProduct(out Stack? stack, int quantity)
         {
             stack = null;
 
@@ -276,12 +282,6 @@
                 return false;
             }
 
-            if (quantity > Quantity)
-            {
-                return false;
-            }
-
-            Quantity -= quantity;
             stack = new Stack(Product, quantity);
             return true;
         }
