@@ -12,7 +12,7 @@
 
     class Mall
     {
-        private List<Stack> _stack = new();
+        private List<Stack> _stacks = new();
         private Queue<Client> _clients = new(8);
 
         public Mall(string name, string description, string adress)
@@ -21,7 +21,7 @@
             Description = description;
             Adress = adress;
 
-            _stack = new List<Stack>
+            _stacks = new List<Stack>
             {
                 new Stack(new Product("Mount and Blade", 500)),
                 new Stack(new Product("Dishonored", 400)),
@@ -54,7 +54,7 @@
 
             bool isProgramOn = true;
 
-            while (_clients.Count > 0 || isProgramOn)
+            while (_clients.Count > 0 && isProgramOn)
             {
                 Console.WriteLine($"Добрый день.\nВ магазине очередь из {_clients.Count} человек");
                 Console.WriteLine($"{CommandServeCustomer}-Обслужить покупателя");
@@ -105,7 +105,8 @@
                         break;
 
                     case CommandEndPurchase:
-                        EndPurchase(out isClientOn);
+                        TryEndPurchase();
+                        isClientOn = false;
                         break;
                 }
             }
@@ -115,7 +116,7 @@
         {
             var client = _clients.Peek();
 
-            if (TryTakeProduct(out Stack? stack))
+            if (TryReturnProduct(out Stack? stack))
             {
                 client.Buy(stack);
                 Console.WriteLine("В корзине");
@@ -127,7 +128,7 @@
             }
         }
 
-        private void EndPurchase(out bool isClientOn)
+        private void TryEndPurchase()
         {
             var client = _clients.Peek();
 
@@ -136,7 +137,6 @@
                 Console.WriteLine("У вас недостаточно денег, нажмите любую клавишу, чтобы выкинуть товар из корзины");
                 Console.ReadKey();
                 client.RemoveProductFromCart();
-                isClientOn = false;
             }
             else
             {
@@ -144,22 +144,21 @@
                 Console.Clear();
                 Console.WriteLine("До свидания!");
                 Console.ReadKey();
-                isClientOn = false;
             }
         }
 
         private void ShowProducts()
         {
-            for (int i = 0; i < _stack.Count; i++)
+            for (int i = 0; i < _stacks.Count; i++)
             {
-                var stack = _stack[i];
+                var stack = _stacks[i];
                 Console.Write((i) + " ");
                 stack.ShowInfo();
                 Console.WriteLine();
             }
         }
 
-        private bool TryTakeProduct(out Stack? stack)
+        private bool TryReturnProduct(out Stack? stack)
         {
             stack = null;
 
@@ -172,7 +171,7 @@
                 return false;
             }
 
-            if (numberProduct < 0 || numberProduct >= _stack.Count)
+            if (numberProduct < 0 || numberProduct >= _stacks.Count)
             {
                 Console.WriteLine("Такого товара нет");
                 Console.ReadKey();
@@ -188,13 +187,14 @@
                 return false;
             }
 
-            if (_stack[numberProduct].TryGetProduct(out stack, quantity) == false)
+            if (_stacks[numberProduct].TryGetProduct(out stack, quantity) == false)
             {
                 Console.WriteLine("Недостаточно количество");
                 Console.ReadKey();
                 return false;
             }
 
+            stack = new Stack(_stacks[numberProduct].Product, quantity);
             return true;
         }
     }
@@ -239,6 +239,7 @@
                 if (currentStack.Product == stack.Product)
                 {
                     currentStack.AddQuantity(stack.Quantity);
+                    Money -= stack.Quantity * stack.Product.Cost;
                     return;
                 }
             }
@@ -257,8 +258,6 @@
 
     class Stack
     {
-        private List<Product> _stack = new();
-
         public Stack(Product product, int quantity)
         {
             Product = product;
@@ -273,7 +272,7 @@
         public Product Product { get; }
         public int Quantity { get; private set; }
 
-        public bool TryGetProduct(out Stack? stack, int quantity)
+        public bool TryGetProduct(out Stack stack, int quantity)
         {
             stack = null;
 
@@ -282,7 +281,6 @@
                 return false;
             }
 
-            stack = new Stack(Product, quantity);
             return true;
         }
 
