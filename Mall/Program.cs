@@ -187,7 +187,7 @@
                 return false;
             }
 
-            if (_stacks[numberProduct].TryGetProduct(out stack, quantity) == false)
+            if (_stacks[numberProduct].TryGetProduct(quantity) == false)
             {
                 Console.WriteLine("Недостаточно количество");
                 Console.ReadKey();
@@ -272,9 +272,8 @@
         public Product Product { get; }
         public int Quantity { get; private set; }
 
-        public bool TryGetProduct(out Stack stack, int quantity)
+        public bool TryGetProduct(int quantity)
         {
-            stack = null;
 
             if (quantity < 0)
             {
